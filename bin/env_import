@@ -1,0 +1,5 @@
+
+for e in `ls ~/env/*`; do
+	BASE=`basename $e`
+	export $BASE=`cat $e`
+done

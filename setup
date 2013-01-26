@@ -1,0 +1,14 @@
+#!/bin/bash
+
+mkdir ~/bin -p
+
+cp bin/* ~/bin
+
+mkdir ~/env -p
+
+APPDIR=`ls -d ~`
+echo $APPDIR > ~/env/APPDIR
+
+echo "$APPDIR/app" > ~/env/CURATOR_REPO_DIR
+
+
