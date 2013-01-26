@@ -14,3 +14,20 @@ echo "$APPDIR/app" > ~/env/CURATOR_REPO_DIR
 if [ ! -f ~/env/CURATOR_LISTEN_PORT ]; then
 	echo $(expr $UID + 50000) > ~/env/CURATOR_LISTEN_PORT
 fi
+
+if [ ! -d ~/app.git ]; then
+git init ~/app.git --bare
+cat > ~/app.git/hooks/post-receive << EOF
+#!/bin/bash
+
+~/bin/curator-init.sh status && ~/bin/curator-init.sh stop
+
+~/bin/curator-deploy.sh
+
+~/bin/curator-init.sh start
+
+EOF
+
+chmod +x ~/app.git/hooks/post-receive
+
+fi
