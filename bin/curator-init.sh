@@ -2,6 +2,8 @@
 
 . ~/bin/env_import
 
+export PATH=$PATH:/usr/sbin:/sbin
+
 HTTPPIDFILE=~/httpd/run/httpd.pid
 EXITCODE=0
 case $1 in

@@ -27,7 +27,18 @@ cat > ~/app.git/hooks/post-receive << EOF
 ~/bin/curator-init.sh start
 
 EOF
-
 chmod +x ~/app.git/hooks/post-receive
-
 fi
+
+
+if [ ! -d ~/httpd ]; then
+    mkdir ~/httpd ~/httpd/run ~/httpd/logs -p
+    cp -r httpd/* ~/httpd
+    if [ -d "/usr/lib/apache2/modules" ]; then
+        ln -s /usr/lib/apache2/modules ~/httpd/modules
+    fi
+fi
+
+mkdir -p ~/.ssh
+chmod 700 ~/.ssh
+
