@@ -11,4 +11,6 @@ echo $APPDIR > ~/env/APPDIR
 
 echo "$APPDIR/app" > ~/env/CURATOR_REPO_DIR
 
-
+if [ ! -f ~/env/CURATOR_LISTEN_PORT ]; then
+	echo $(expr $UID + 50000) > ~/env/CURATOR_LISTEN_PORT
+fi

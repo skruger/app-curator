@@ -1,26 +1,27 @@
 #!/bin/bash
 
-cd ~
-APPDIR=`pwd`
+. ~/bin/env_import
 
-rm -rf app virtenv
+cd $APPDIR
 
-virtualenv --setuptools virtenv
+rm -rf $APPDIR/app $APPDIR/virtenv
 
-git clone app.git
+virtualenv --setuptools $APPDIR/virtenv
 
-test ! -d app/htdocs && mkdir app/htdocs
+git clone $APPDIR/app.git $CURATOR_REPO_DIR
 
-virtenv/bin/python app/setup.py install
+test ! -d $APPDIR/app/htdocs && mkdir $APPDIR/app/htdocs
 
-cat > httpd/curator.conf << EOF
+$APPDIR/virtenv/bin/python $APPDIR/app/setup.py install
+
+cat > $APPDIR/httpd/curator.conf << EOF
 
 ServerRoot "$APPDIR/httpd"
-Listen 6001
-User mediatraqr
-Group mediatraqr
-DocumentRoot "$APPDIR/app/htdocs"
-<Directory "$APPDIR/app/htdocs">
+Listen $CURATOR_LISTEN_PORT
+User $USER
+Group $USER
+DocumentRoot "$CURATOR_REPO_DIR/htdocs"
+<Directory "$CURATOR_REPO_DIR/htdocs">
     Options Indexes FollowSymLinks
     AllowOverride All
     Order allow,deny
@@ -28,15 +29,15 @@ DocumentRoot "$APPDIR/app/htdocs"
 </Directory>
 Include conf/httpd.conf
 
-WSGIScriptAlias / $APPDIR/app/wsgi/curator.application
+WSGIScriptAlias / $CURATOR_REPO_DIR/wsgi/curator.application
 WSGIPassAuthorization On
 
 EOF
 
-if [ -d "$APPDIR/app/wsgi/static" ]; then
-cat >> httpd/curator.conf << EOF
-Alias /static/ /home/mediatraqr/app/wsgi/static/
-<Directory "/home/mediatraqr/app/wsgi/static/">
+if [ -d "$CURATOR_REPO_DIR/wsgi/static" ]; then
+cat >> $APPDIR/httpd/curator.conf << EOF
+Alias /static/ $CURATOR_REPO_DIR/wsgi/static/
+<Directory "$CURATOR_REPO_DIR/wsgi/static/">
     Options Indexes FollowSymLinks
     AllowOverride All
     Order allow,deny
@@ -46,4 +47,4 @@ Alias /static/ /home/mediatraqr/app/wsgi/static/
 EOF
 fi
 
-~/virtenv/bin/python ~/app/wsgi/mediatraqr/manage.py collectstatic --noinput
+$APPDIR/virtenv/bin/python $CURATOR_REPO_DIR/wsgi/mediatraqr/manage.py collectstatic --noinput
