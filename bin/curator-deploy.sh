@@ -2,18 +2,28 @@
 
 . ~/bin/env_import
 
+function echo_msg(){
+	echo "===> $1"
+}
+
 cd $APPDIR
 
+echo_msg "Removing virtualenv and app directories."
 rm -rf $APPDIR/app $APPDIR/virtenv
 
+echo_msg "Creating virtualenv."
 virtualenv --setuptools $APPDIR/virtenv
 
+echo_msg "Cloning application."
 git clone $APPDIR/app.git $CURATOR_REPO_DIR
 
+echo_msg "Create empty docroot if missing."
 test ! -d $APPDIR/app/htdocs && mkdir $APPDIR/app/htdocs
 
+echo_msg "Run $APPDIR/app/setup.py install"
 $APPDIR/virtenv/bin/python $APPDIR/app/setup.py install
 
+echo_msg "Create httpd/curator.conf"
 cat > $APPDIR/httpd/curator.conf << EOF
 
 ServerRoot "$APPDIR/httpd"
@@ -47,4 +57,8 @@ Alias /static/ $CURATOR_REPO_DIR/wsgi/static/
 EOF
 fi
 
-$APPDIR/virtenv/bin/python $CURATOR_REPO_DIR/wsgi/mediatraqr/manage.py collectstatic --noinput
+echo_msg "Run $CURATOR_REPO_DIR/curator.postdeploy."
+if [ -x "$CURATOR_REPO_DIR/curator.postdeploy" ]; then
+	$CURATOR_REPO_DIR/curator.postdeploy
+fi
+
